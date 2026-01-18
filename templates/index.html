@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graph Algorithms Visualizer</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<div class="container">
+    <div class="main-layout">
+        <aside class="controls">
+            <div class="section">
+                <h3>1. Nhập dữ liệu</h3>
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('text')">Text</button>
+                    <button class="tab-btn" onclick="switchTab('file')">File .mtx</button>
+                    <button class="tab-btn" onclick="switchTab('draw')">GUI</button>
+                </div>
+
+                <div id="tab-text" class="tab-content active">
+                    <p class="hint">Nhập: Nguồn Đích Trọng_số (VD: 1 2 5)</p>
+                    <textarea id="graph-input" placeholder="1 2 10&#10;2 3 5&#10;1 3 15"></textarea>
+                    <button onclick="handleTextInput()">Tạo Đồ Thị</button>
+                </div>
+
+                <div id="tab-file" class="tab-content">
+                    <p class="hint">Hỗ trợ định dạng Matrix Market (.mtx)</p>
+                    <input type="file" id="file-input" accept=".mtx">
+                    <button onclick="handleFileInput()">Tạo Đồ Thị</button>
+                </div>
+
+                <div id="tab-draw" class="tab-content">
+                    <p class="hint">
+                        - Sử dụng thanh công cụ trên bản đồ để Thêm Nút (Add Node) và Thêm Cạnh (Add Edge)<br>
+                        - Click vào đối tượng để Xóa (Delete selected)<br>
+                        - Double click vào cạnh để chỉnh sửa trọng số
+                    </p>
+                </div>
+            </div>
+
+            <hr>
+
+            <div class="section">
+                <h3>2. Thuật toán</h3>
+                <select id="algo-select" onchange="toggleAlgoInputs()">
+                    <option value="mst">Cây khung nhỏ nhất (Kruskal)</option>
+                    <option value="shortest">Đường đi ngắn nhất (Dijkstra)</option>
+                </select>
+
+                <div id="dijkstra-inputs" style="display: none; margin-top: 10px;">
+                    <input type="text" id="start-node" placeholder="Nút bắt đầu (VD: 1)">
+                    <input type="text" id="end-node" placeholder="Nút kết thúc (VD: 3)">
+                </div>
+
+                <button class="run-btn" onclick="runAlgorithm()">Chạy Thuật Toán</button>
+                <button class="reset-btn" onclick="resetColor()">Reset Màu</button>
+            </div>
+
+            <div class="section">
+                <h3>Kết quả:</h3>
+                <div id="result-text">...</div>
+            </div>
+        </aside>
+
+        <main id="network-container">
+            <div id="network"></div>
+        </main>
+    </div>
+
+    <div id="loading-overlay" class="hidden">
+        <div class="loader-box">
+            <div class="spinner"></div>
+            <p>Đang tính toán...</p>
+            <button onclick="cancelAlgorithm()" class="btn-cancel-request">Hủy</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script src="/static/scripts.js"></script>
+
+</body>
+</html>
