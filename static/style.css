@@ -119,7 +119,12 @@ button {
     font-weight: bold;
 }
 
-.reset-btn {
+.reset-color-btn {
+    background-color: #6c757d;
+    color: white;
+}
+
+.reset-graph-btn {
     background-color: #e74c3c;
     color: white;
 }

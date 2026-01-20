@@ -33,6 +33,15 @@ const options = {
             if (isDirected) {
                 edgeData.id = `${edgeData.from}-${edgeData.to}`;
                 edgeData.arrows = 'to';
+                const reverseId = `${edgeData.to}-${edgeData.from}`;
+
+                if (edges.get(reverseId)) {
+                    edgeData.smooth = { enabled: true, type: 'curvedCW', roundness: 0.2 };
+                    edges.update({
+                        id: reverseId,
+                        smooth: { enabled: true, type: 'curvedCW', roundness: 0.2 }
+                    });
+                }
             } else {
                 const sorted = [edgeData.from, edgeData.to].sort();
                 edgeData.id = `${sorted[0]}-${sorted[1]}`
@@ -141,6 +150,12 @@ function resetColor() {
 
     edges.update(edgeUpdates);
     nodes.update(nodeUpdates);
+    document.getElementById('result-text').innerText = "...";
+}
+
+function resetGraph() {
+    nodes.clear();
+    edges.clear();
     document.getElementById('result-text').innerText = "...";
 }
 
