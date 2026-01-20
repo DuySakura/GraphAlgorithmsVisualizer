@@ -47,20 +47,60 @@
                 <select id="algo-select" onchange="toggleAlgoInputs()">
                     <option value="mst">Cây khung nhỏ nhất (Kruskal)</option>
                     <option value="shortest">Đường đi ngắn nhất (Dijkstra)</option>
+                    <option value="dromd">Thống trị Roman kép (GA)</option>
                 </select>
 
-                <div id="dijkstra-inputs" style="display: none; margin-top: 10px;">
+                <div id="shortest-inputs" style="display: none; margin-top: 10px;">
                     <input type="text" id="start-node" placeholder="Nút bắt đầu (VD: 1)">
                     <input type="text" id="end-node" placeholder="Nút kết thúc (VD: 3)">
                 </div>
 
+                <div id="dromd-inputs" style="display: none; margin-top: 10px;">
+                    <div class="form-group">
+                        <label for="pop-size">Số lượng cá thể (mặc định: 100):</label>
+                        <input type="number" id="pop-size" value="100" min="1" step="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="generations">Số thế hệ (mặc định: 300):</label>
+                        <input type="number" id="generations" value="300" min="1" step="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pc">Xác suất lai ghép (mặc định: 0.9):</label>
+                        <input type="number" id="pc" value="0.9" min="0" max="1" step="0.01">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pm">Xác suất đột biến (mặc định: 0.3):</label>
+                        <input type="number" id="pm" value="0.3" min="0" max="1" step="0.01">
+                    </div>
+                </div>
+
                 <button class="run-btn" onclick="runAlgorithm()">Chạy Thuật Toán</button>
-                <button class="reset-btn" onclick="resetColor()">Reset Màu</button>
+                <button class="reset-color-btn" onclick="resetColor()">Reset Màu</button>
+                <button class="reset-graph-btn" onclick="resetGraph()">Reset Đồ Thị</button>
             </div>
 
             <div class="section">
                 <h3>Kết quả:</h3>
                 <div id="result-text">...</div>
+
+                <div id="legend-container" class="legend-container" style="display: none;">
+                    <h4>Chú thích màu:</h4>
+                    <div class="legend-item">
+                        <span class="color-box" style="background-color: #FF4136;"></span>
+                        <span>Label 3</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="color-box" style="background-color: #2ECC40;"></span>
+                        <span>Label 2</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="color-box" style="background-color: #DDDDDD;"></span>
+                        <span>Label 0</span>
+                    </div>
+                </div>
             </div>
         </aside>
 

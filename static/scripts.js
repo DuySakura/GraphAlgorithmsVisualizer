@@ -113,15 +113,24 @@ function switchTab(mode) {
 
 function toggleAlgoInputs() {
     const algo = document.getElementById('algo-select').value;
-    const dijkstraInputs = document.getElementById('dijkstra-inputs');
+    const shortestInputs = document.getElementById('shortest-inputs');
+    const dromdInputs = document.getElementById('dromd-inputs')
 
-    if (algo == 'shortest') {
-        dijkstraInputs.style.display = 'block';
+    if (algo === 'mst') {
+        shortestInputs.style.display = 'none';
+        dromdInputs.style.display = 'none';
+        network.setOptions({
+            edges: { arrows: { to: { enabled: false }}}
+        });
+    } else if (algo === 'shortest') {
+        shortestInputs.style.display = 'block';
+        dromdInputs.style.display = 'none';
         network.setOptions({
             edges: { arrows: { to: { enabled: true }}}
         });
     } else {
-        dijkstraInputs.style.display = 'none';
+        shortestInputs.style.display = 'none';
+        dromdInputs.style.display = 'block';
         network.setOptions({
             edges: { arrows: { to: { enabled: false }}}
         });
@@ -129,18 +138,24 @@ function toggleAlgoInputs() {
 }
 
 function resetColor() {
+    const nodeUpdates = nodes.getIds().map(id => ({
+        id: id,
+        color: { background: '#D2E5FF' } 
+    }));
     const edgeUpdates = edges.getIds().map(id => ({
         id: id,
         color: { color: '#848484' },
         width: 1
     }));
-    const nodeUpdates = nodes.getIds().map(id => ({
-        id: id,
-        color: { background: '#D2E5FF' } 
-    }));
 
-    edges.update(edgeUpdates);
     nodes.update(nodeUpdates);
+    edges.update(edgeUpdates);
+    document.getElementById('result-text').innerText = "...";
+}
+
+function resetGraph() {
+    nodes.clear();
+    edges.clear();
     document.getElementById('result-text').innerText = "...";
 }
 
@@ -266,8 +281,24 @@ async function runAlgorithm() {
     if (type === 'shortest') {
         const start = document.getElementById('start-node').value.trim();
         const end = document.getElementById('end-node').value.trim();
-        if (!start || !end) { alert("Thiếu điểm đầu/cuối"); return; }
-        payload.startNode = start; payload.endNode = end;
+
+        if (!start || !end) { 
+            alert("Thiếu điểm đầu/cuối");
+            return;
+        }
+
+        payload.startNode = start; 
+        payload.endNode = end;
+    } else if (type == 'dromd') {
+        const size = document.getElementById('pop-size').value;
+        const generations = document.getElementById('generations').value;
+        const pc = document.getElementById('pc').value;
+        const pm = document.getElementById('pm').value;
+
+        payload.popSize = size;
+        payload.generations = generations;
+        payload.pc = pc;
+        payload.pm = pm;
     }
 
     document.getElementById('loading-overlay').classList.remove('hidden');
@@ -278,7 +309,15 @@ async function runAlgorithm() {
     const signal = abortController.signal;
 
     try {
-        const endpoint = type === 'mst' ? '/api/mst' : '/api/shortest-path';
+        let endpoint;
+
+        if (type === 'mst') {
+            endpoint = '/api/mst'
+        } else if (type === 'shortest') {
+            endpoint = '/api/shortest'
+        } else {
+            endpoint = '/api/dromd'
+        }
         
         const response = await fetch(`${BACKEND_URL}${endpoint}`, {
             method: 'POST',
@@ -291,7 +330,6 @@ async function runAlgorithm() {
         
         const result = await response.json();
         handleBackendResult(type, result);
-
     } catch (error) {
         if (error.name === 'AbortError') {
             document.getElementById('result-text').innerText = "Đã hủy tác vụ!";
@@ -355,6 +393,33 @@ function handleBackendResult(type, data) {
                 }));
 
             edges.update(edgeUpdates);
+        }
+    } else {
+        document.getElementById('result-text').innerText = `Tổng trọng số DROMD: ${data.bestVal}`;
+        const legend = document.getElementById('legend-container');
+        if (legend) legend.style.display = 'block';
+
+        if (data.bestSolution) { 
+            const colorMap = {
+                3: { background: '#FF4136', border: '#B10DC9' },
+                2: { background: '#2ECC40', border: '#01FF70' },
+                0: { background: '#DDDDDD', border: '#AAAAAA' }
+            };
+
+            const nodeUpdates = data.bestSolution
+                .filter(item => nodes.get(item[0]))
+                .map(item => {
+                    const nodeId = item[0];
+                    const label = item[1];
+
+                    return {
+                        id: nodeId,
+                        color: colorMap[label] || { background: '#97C2FC' },
+                        title: `ID: ${nodeId} - Label: ${label}`
+                    };
+                });
+            
+            nodes.update(nodeUpdates);
         }
     }
 }
